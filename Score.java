@@ -13,27 +13,27 @@ public class Score {
 		
 	// all getters and setters must be synchronized
 	
-	public int getMissed() {
+	public synchronized  int getMissed() {
 		return missedWords;
 	}
 
-	public int getCaught() {
+	 public synchronized int getCaught() {
 		return caughtWords;
 	}
 	
-	public int getTotal() {
+	public synchronized int getTotal() {
 		return (missedWords+caughtWords);
 	}
 
-	public int getScore() {
+	public synchronized int getScore() {
 		return gameScore;
 	}
 	
-	public void missedWord() {
+	public synchronized void missedWord() {
 		missedWords++;
 	}
 
-	public void caughtWord(int length) {
+	public synchronized void caughtWord(int length) {
 		caughtWords++;
 		gameScore+=length;
 	}

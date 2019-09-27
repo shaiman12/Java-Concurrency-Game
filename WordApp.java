@@ -30,7 +30,10 @@ public class WordApp {
 
 	static WordPanel w;
 	
-	
+	public static JLabel missed;
+	public static JButton endB;
+	public static JButton startB;
+	static Thread thread;
 	
 	public static void setupGUI(int frameX,int frameY,int yLimit) {
 		// Frame init and dimensions
@@ -43,7 +46,7 @@ public class WordApp {
       	g.setSize(frameX,frameY);
  
     	
-		w = new WordPanel(words,yLimit);
+		w = new WordPanel(words,yLimit,score);
 		w.setSize(frameX,yLimit+100);
 	    g.add(w);
 	    
@@ -51,8 +54,8 @@ public class WordApp {
 	    JPanel txt = new JPanel();
 	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
 	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
-	    JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
-	    JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
+	    missed =new JLabel("Missed: " + score.getMissed()+ "    ");
+	    JLabel scr =new JLabel("Score: " + score.getScore()+ "    ");    
 	    txt.add(caught);
 	    txt.add(missed);
 	    txt.add(scr);
@@ -76,30 +79,68 @@ public class WordApp {
 	    
 	    JPanel b = new JPanel();
         b.setLayout(new BoxLayout(b, BoxLayout.LINE_AXIS)); 
-	   	JButton startB = new JButton("Start");;
+	   	startB = new JButton("Start");;
 		
-			// add the listener to the jbutton to handle the "pressed" event
-			startB.addActionListener(new ActionListener()
-		    {
-		      public void actionPerformed(ActionEvent e)
-		      {
-		    	  //[snip]
-		    	  textEntry.requestFocus();  //return focus to the text entry field
-		      }
-		    });
-		JButton endB = new JButton("End");;
-			
+		
+		endB = new JButton("End");;
+		// add the listener to the jbutton to handle the "pressed" event
+		startB.addActionListener(new ActionListener()
+	    {
+	      public void actionPerformed(ActionEvent e)
+	      {
+	    	  startB.setEnabled(false);
+	    	  endB.setEnabled(true);
+	    	  thread = new Thread(w);
+	    	  thread.start();
+	    	  textEntry.requestFocus();  //return focus to the text entry field
+	      }
+	    });
 				// add the listener to the jbutton to handle the "pressed" event
 				endB.addActionListener(new ActionListener()
 			    {
-			      public void actionPerformed(ActionEvent e)
+				public void actionPerformed(ActionEvent e)
 			      {
-			    	  //[snip]
+			    	  done = true;
+			    	  w.done = true;
+			    	  try {
+						thread.join();;
+						w.endAllThreads();
+					} catch (InterruptedException e1) {
+			 			// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			    	  
+			    	  score.resetScore();
+			    	  setupGUI(frameX, frameY, yLimit);
+			    	  
+			    	  int x_inc=(int)frameX/noWords;
+			  	  	//initialize shared array of current words
+
+			  		for (int i=0;i<noWords;i++) {
+			  			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
+			  		}
+			    	  
+			    	  
+			    	  
+			    	  endB.setEnabled(false);
+			    	  startB.setEnabled(true);
 			      }
 			    });
+				
+				
+		JButton quitB = new JButton("Quit");;
+		quitB.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+				
+			}
+		});
 		
 		b.add(startB);
 		b.add(endB);
+		b.add(quitB);
 		
 		g.add(b);
     	

@@ -2,12 +2,14 @@
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class WordPanel extends JPanel implements Runnable {
@@ -15,6 +17,10 @@ public class WordPanel extends JPanel implements Runnable {
 		private WordRecord[] words;
 		private int noWords;
 		private int maxY;
+		private Score score;
+		private Thread[] threads;
+		public static int messageCount;
+
 
 		
 		public void paintComponent(Graphics g) {
@@ -35,17 +41,107 @@ public class WordPanel extends JPanel implements Runnable {
 		   
 		  }
 		
-		WordPanel(WordRecord[] words, int maxY) {
+		WordPanel(WordRecord[] words, int maxY, Score score) {
 			this.words=words; //will this work?
 			noWords = words.length;
 			done=false;
 			this.maxY=maxY;		
+			this.score = score;
+			messageCount = 0;
 		}
 		
-		public void run() {
-			//add in code to animate this
+		
+		
+		public void endAllThreads() {
+			for(int i=0;i<threads.length;i++) {
+				try {
+					threads[i].join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
+		
+		public synchronized void displayMessage() {
+			if(messageCount==0) {
+				int result = JOptionPane.showConfirmDialog(null, "Game is Over.\nClick 'Start' to begin new game\nClick 'Quit' to exit",
+						"Game Over!", JOptionPane.OK_OPTION);
+				if(result==JOptionPane.OK_OPTION) {
+					WordApp.startB.setEnabled(true);
+				}
+				
+			}
+			messageCount++;
+		}
+		
+		
+		
+		public void run() {
+			threads = new Thread[noWords];
+			for(int i= 0;i<noWords;i++) {
+				wordFalling wordThread = new wordFalling(words[i]);
+				Thread thread = new Thread(wordThread);
+				threads[i] = thread;
+			}
+			
+			for(int i = 0;i<threads.length;i++) {
+				threads[i].start();
+			}
+			
+		}
+		
 
+		 
+		
+		//Inner class
+	public class wordFalling implements Runnable{
+			WordRecord word;
+			
+			public wordFalling(WordRecord word) {
+				this.word = word;
+			}
+			
+			
+			
+			
+			
+			@Override
+			public void run() {
+				while(done!=true) {
+					if(word.dropped()) {
+					score.missedWord();
+					WordApp.missed.setText("Missed: "+ score.getMissed()+ "    ");
+					word.resetWord();
+					}
+					
+						try {
+							Thread.sleep(word.getSpeed());
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+					
+					word.drop(40);
+					repaint();
+				
+					if(score.getTotal()==WordApp.totalWords) {
+						done=true;
+						WordApp.endB.setEnabled(false);
+						displayMessage();
+
+					}
+			
+				
+				}
+				
+			}
+			
+		}
+		
+		
+		
 	}
 
 
