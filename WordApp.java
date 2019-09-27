@@ -67,7 +67,18 @@ public class WordApp {
 	    {
 	      public void actionPerformed(ActionEvent evt) {
 	          String text = textEntry.getText();
-	          //[snip]
+	          for(int i = 0;i<noWords;i++) {
+	        	  if(words[i].matchWord(text)) {
+	        		  score.caughtWord(text.length());
+	        		  words[i].resetWord();
+	    
+	        			  caught.setText("Caught: " + score.getCaught() + "    ");
+					break;
+	        		  
+	        	  }
+	          }
+	          
+	          scr.setText("Score: " + score.getScore()+ "    ");
 	          textEntry.setText("");
 	          textEntry.requestFocus();
 	      }

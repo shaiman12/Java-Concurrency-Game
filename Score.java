@@ -38,7 +38,7 @@ public class Score {
 		gameScore+=length;
 	}
 
-	public void resetScore() {
+	public synchronized void resetScore() {
 		caughtWords=0;
 		missedWords=0;
 		gameScore=0;

@@ -63,13 +63,14 @@ public class WordPanel extends JPanel implements Runnable {
 			}
 		}
 		
-		public synchronized void displayMessage() {
+		public synchronized void displayMessage(boolean won) {
 			if(messageCount==0) {
-				int result = JOptionPane.showConfirmDialog(null, "Game is Over.\nClick 'Start' to begin new game\nClick 'Quit' to exit",
-						"Game Over!", JOptionPane.OK_OPTION);
-				if(result==JOptionPane.OK_OPTION) {
-					WordApp.startB.setEnabled(true);
+				if(won) {
+			JOptionPane.showMessageDialog(null, "Congradulations! You Win.\nYou scored: "+score.getScore()+"\nClick 'End' to begin new game\nClick 'Quit' to exit");}
+				else {
+					JOptionPane.showMessageDialog(null, "You Lost! Better luck next time. \nYou scored: "+score.getScore()+"\nClick 'End' to begin new game\nClick 'Quit' to exit");
 				}
+				WordApp.endB.setEnabled(true);
 				
 			}
 			messageCount++;
@@ -123,13 +124,18 @@ public class WordPanel extends JPanel implements Runnable {
 						}
 					
 					
-					word.drop(40);
+					word.drop(3);
 					repaint();
 				
-					if(score.getTotal()==WordApp.totalWords) {
+					if(score.getTotal()>=WordApp.totalWords) {
 						done=true;
 						WordApp.endB.setEnabled(false);
-						displayMessage();
+						if(score.getCaught()>score.getMissed()) {
+							displayMessage(true);
+						}else {
+							displayMessage(false);
+						}
+						
 
 					}
 			
@@ -139,6 +145,9 @@ public class WordPanel extends JPanel implements Runnable {
 			}
 			
 		}
+	
+	
+
 		
 		
 		
