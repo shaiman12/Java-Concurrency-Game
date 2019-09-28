@@ -33,6 +33,8 @@ public class WordApp {
 	public static JLabel missed;
 	public static JButton endB;
 	public static JButton startB;
+	public static JLabel caught;
+	public static JLabel scr;
 	static Thread thread;
 	
 	public static void setupGUI(int frameX,int frameY,int yLimit) {
@@ -53,9 +55,9 @@ public class WordApp {
 	    
 	    JPanel txt = new JPanel();
 	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
-	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
+	    caught =new JLabel("Caught: " + score.getCaught() + "    ");
 	    missed =new JLabel("Missed: " + score.getMissed()+ "    ");
-	    JLabel scr =new JLabel("Score: " + score.getScore()+ "    ");    
+	    scr =new JLabel("Score: " + score.getScore()+ "    ");    
 	    txt.add(caught);
 	    txt.add(missed);
 	    txt.add(scr);
@@ -66,19 +68,12 @@ public class WordApp {
 	   textEntry.addActionListener(new ActionListener()
 	    {
 	      public void actionPerformed(ActionEvent evt) {
-	          String text = textEntry.getText();
-	          for(int i = 0;i<noWords;i++) {
-	        	  if(words[i].matchWord(text)) {
-	        		  score.caughtWord(text.length());
-	        		  words[i].resetWord();
-	    
-	        			  caught.setText("Caught: " + score.getCaught() + "    ");
-					break;
-	        		  
-	        	  }
-	          }
+	          String input = textEntry.getText();
+	          WordCatcher wordCatcher = new WordCatcher(input);
+	          Thread wordThread = new Thread(wordCatcher);
+	          wordThread.start();
 	          
-	          scr.setText("Score: " + score.getScore()+ "    ");
+	          
 	          textEntry.setText("");
 	          textEntry.requestFocus();
 	      }
@@ -212,6 +207,34 @@ public static String[] getDictFromFile(String filename) {
 		}
 
 
+	}
+	
+	public static class WordCatcher implements Runnable{
+
+		String word;
+		
+		
+		public WordCatcher(String word) {
+			this.word = word;
+		}
+		
+		@Override
+		public void run() {
+			for(int i = 0;i<noWords;i++) {
+	        	  if(words[i].matchWord(word)) {
+	        		  score.caughtWord(word.length());
+	        		  words[i].resetWord();
+	    
+	        			  caught.setText("Caught: " + score.getCaught() + "    ");
+					break;
+	        		  
+	        	  }
+	          }
+			scr.setText("Score: " + score.getScore()+ "    ");
+			
+		}
+		
+		
 	}
 
 }

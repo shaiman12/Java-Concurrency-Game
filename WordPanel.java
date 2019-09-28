@@ -124,7 +124,7 @@ public class WordPanel extends JPanel implements Runnable {
 						}
 					
 					
-					word.drop(3);
+					word.drop(10);
 					repaint();
 				
 					if(score.getTotal()>=WordApp.totalWords) {
