@@ -11,8 +11,17 @@ import java.io.IOException;
 
 import java.util.Scanner;
 import java.util.concurrent.*;
-//model is separate from the view.
 
+/**
+ * This class is the class that essentially functions as the main class or driver of the program. This class sets up the graphical user interface and implements the associated classes and the WordPanel class.
+ * This class will allow the user to start the game by clicking a button that will start the WordPanel thread, as well as its individual wordFalling threads.
+ * The user can end the game by clicking a button that will end all the panel thread as well as all the individual threads of words falling.
+ * Every time the user types a word in a text box and presses the enter key, the program will spawn a new WordCatcher thread that will evaluate if the user successfully typed a word or not
+ * The user can also exit the program by pressing the 'Quit' Button. 
+ * This class has an inner class called WordCatcher that serves as individual threads that will evaluate if the user typed a word correctly or not. More on this can be found below
+ * @author ShaiAarons
+ *
+ */
 public class WordApp {
 //shared variables
 	static int noWords=4;
@@ -37,6 +46,13 @@ public class WordApp {
 	public static JLabel scr;
 	static Thread thread;
 	
+	
+	/**
+	 * This is the method that sets up the GUI and its associated functionality.
+	 * @param frameX The X size of the GUI
+	 * @param frameY The Y size of the GUI
+	 * @param yLimit The furthest point words can fall to.
+	 */
 	public static void setupGUI(int frameX,int frameY,int yLimit) {
 		// Frame init and dimensions
     	JFrame frame = new JFrame("WordGame"); 
@@ -62,8 +78,7 @@ public class WordApp {
 	    txt.add(missed);
 	    txt.add(scr);
     
-	    //[snip]
-  
+
 	    final JTextField textEntry = new JTextField("",20);
 	   textEntry.addActionListener(new ActionListener()
 	    {
@@ -89,7 +104,6 @@ public class WordApp {
 		
 		
 		endB = new JButton("End");;
-		// add the listener to the jbutton to handle the "pressed" event
 		startB.addActionListener(new ActionListener()
 	    {
 	      public void actionPerformed(ActionEvent e)
@@ -101,7 +115,6 @@ public class WordApp {
 	    	  textEntry.requestFocus();  //return focus to the text entry field
 	      }
 	    });
-				// add the listener to the jbutton to handle the "pressed" event
 				endB.addActionListener(new ActionListener()
 			    {
 				public void actionPerformed(ActionEvent e)
@@ -120,7 +133,6 @@ public class WordApp {
 			    	  setupGUI(frameX, frameY, yLimit);
 			    	  
 			    	  int x_inc=(int)frameX/noWords;
-			  	  	//initialize shared array of current words
 
 			  		for (int i=0;i<noWords;i++) {
 			  			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
@@ -159,7 +171,12 @@ public class WordApp {
 		
 	}
 
-	
+	/**
+	 * This is the method that opens the file and reads in the amount of words to be used by the game.
+	 * The words are then stored into the WordDictionary class.
+	 * @param filename The name of the file
+	 * @return The dictionary of words to be used by the game
+	 */
 public static String[] getDictFromFile(String filename) {
 		String [] dictStr = null;
 		try {
@@ -180,6 +197,12 @@ public static String[] getDictFromFile(String filename) {
 
 	}
 
+
+/**
+ * This is the main method of the program that will initialize the process of the game. It reads in the words from the text file 
+ * and then sets up the graphical user interface.
+ * @param args command line arguments
+ */
 	public static void main(String[] args) {
     	
 		//deal with command line arguments
@@ -193,8 +216,7 @@ public static String[] getDictFromFile(String filename) {
 		WordRecord.dict=dict; //set the class dictionary for the words.
 		
 		words = new WordRecord[noWords];  //shared array of current words
-		
-		//[snip]
+	
 		
 		setupGUI(frameX, frameY, yLimit);  
     	//Start WordPanel thread - for redrawing animation
@@ -209,15 +231,29 @@ public static String[] getDictFromFile(String filename) {
 
 	}
 	
+	/**
+	 * This is the inner class that evaluates if a string that the user has typed in matches to a word that is falling on the screen
+	 * This class implements the Runnable interface so that it can be used as a thread to perform its own operations separately from the rest of the program.
+	 * An instance of this class will be created every time a user types the enter button in the main GUI. 
+	 * @author ShaiAarons
+	 *
+	 */
 	public static class WordCatcher implements Runnable{
 
 		String word;
 		
-		
+		/**
+		 * Constructor for this class
+		 * @param word The word the user has typed in 
+		 */
 		public WordCatcher(String word) {
 			this.word = word;
 		}
 		
+		/**
+		 * Run method that will iterate through the array of WordRecords use the WordRecord matchWord() method to evaluate if the user has correctly typed in a word
+		 * If the user has correctly typed the word - the score will be incremented and the word will be reset using the resetWord() method
+		 */
 		@Override
 		public void run() {
 			for(int i = 0;i<noWords;i++) {
